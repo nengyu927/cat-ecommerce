@@ -1,0 +1,4 @@
+# Isolated tests only. Never use this known value for a running store.
+app:
+  jwt:
+    secret: isolated-unit-test-secret-not-for-production-32bytes

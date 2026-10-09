@@ -1,0 +1,26 @@
+# Local development profile — Microsoft SQL Server 2022 (Developer Edition / Docker)
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=catshop;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: ${DB_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    show-sql: true
+
+logging:
+  level:
+    com.catshop: debug
+
+# Operator-only development files, not SMTP and never served via HTTP.
+app:
+  password-reset:
+    local-mail-enabled: true
+    mail-directory: .local/password-reset-mails
+    frontend-url: http://127.0.0.1:5173
+    admin-url: http://127.0.0.1:5174

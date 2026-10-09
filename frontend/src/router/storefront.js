@@ -1,0 +1,23 @@
+// Storefront-only routes never register Admin operations.
+export const storefrontRoutes = [
+  { path: '/', name: 'home', component: () => import('@/views/HomeView.vue') },
+  { path: '/products', name: 'products', component: () => import('@/views/ProductListView.vue') },
+  { path: '/products/:id', name: 'product-detail', component: () => import('@/views/ProductDetailView.vue') },
+  { path: '/product/:id', redirect: to => `/products/${to.params.id}` },
+  { path: '/search', name: 'search', component: () => import('@/views/ProductListView.vue') },
+  { path: '/category/:slug', name: 'category-products', component: () => import('@/views/ProductListView.vue') },
+  { path: '/categories', name: 'categories', component: () => import('@/views/CategoryView.vue') },
+  { path: '/cart', name: 'cart', component: () => import('@/views/CartView.vue'), meta: { requiresAuth: true } },
+  { path: '/checkout', name: 'checkout', component: () => import('@/views/CheckoutView.vue'), meta: { requiresAuth: true } },
+  { path: '/orders', name: 'orders', component: () => import('@/views/OrderListView.vue'), meta: { requiresAuth: true } },
+  { path: '/orders/:id', name: 'order-detail', component: () => import('@/views/OrderDetailView.vue'), meta: { requiresAuth: true } },
+  { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
+  { path: '/register', name: 'register', component: () => import('@/views/RegisterView.vue') },
+  { path: '/account', name: 'account', component: () => import('@/views/AccountView.vue'), meta: { requiresAuth: true } },
+  {path:'/account/addresses',name:'account-addresses',component:()=>import('@/views/AddressListView.vue'),meta:{requiresAuth:true}},
+  {path:'/account/addresses/new',name:'account-address-new',component:()=>import('@/views/AddressEditView.vue'),meta:{requiresAuth:true}},
+  {path:'/account/addresses/:id/edit',name:'account-address-edit',component:()=>import('@/views/AddressEditView.vue'),meta:{requiresAuth:true}},
+  {path:'/account/profile',name:'account-profile',component:()=>import('@/views/AccountSettingsView.vue'),meta:{requiresAuth:true,accountForm:'profile'}},
+  {path:'/account/password',name:'account-password',component:()=>import('@/views/AccountSettingsView.vue'),meta:{requiresAuth:true,accountForm:'password'}},
+  { path: '/wishlist', name: 'wishlist', component: () => import('@/views/WishlistView.vue'), meta: { requiresAuth: true } },
+]

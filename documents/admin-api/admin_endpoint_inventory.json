@@ -1,0 +1,50 @@
+{
+  "project": "喵喵商城 · 貓用品電商（Spring Boot 3.2 + Vue 3 + MS SQL Server 2022）",
+  "generated_at": "2026-10-07",
+  "task": "原始 ADMIN CRUD 盤點；續作增加上傳端點與付款／版本欄位，最新契約見 IMPLEMENTATION_NOTES.md",
+  "summary": {
+    "plan_target_endpoints": 38,
+    "implemented_before": 24,
+    "implemented_after": 38,
+    "newly_added": 14,
+    "newly_added_scope": "管理後台 商品 / 分類 / 訂單 CRUD"
+  },
+  "security": {
+    "rule": ".requestMatchers(\"/api/admin/**\").hasRole(\"ADMIN\") 置於 anyRequest().authenticated() 之前",
+    "method_security": "@EnableMethodSecurity + @PreAuthorize(\"hasRole('ADMIN')\") 於三個 Admin Controller 類別層級",
+    "jwt": "驗證 JWT 後讀取資料庫最新會員角色與 ACTIVE 狀態，再轉換為 ROLE_ 授權",
+    "error_handling": "401 UNAUTHORIZED / 403 FORBIDDEN 皆回傳統一 ApiResponse JSON 信封"
+  },
+  "new_endpoints": [
+    { "id": "AC1", "module": "catalog", "method": "GET", "path": "/api/admin/categories", "role": "ADMIN", "impl": "AdminCategoryController#list", "service": "AdminCategoryService#list" },
+    { "id": "AC2", "module": "catalog", "method": "POST", "path": "/api/admin/categories", "role": "ADMIN", "impl": "AdminCategoryController#create", "service": "AdminCategoryService#create" },
+    { "id": "AC3", "module": "catalog", "method": "PUT", "path": "/api/admin/categories/{id}", "role": "ADMIN", "impl": "AdminCategoryController#update", "service": "AdminCategoryService#update" },
+    { "id": "AC4", "module": "catalog", "method": "DELETE", "path": "/api/admin/categories/{id}", "role": "ADMIN", "impl": "AdminCategoryController#deactivate", "service": "AdminCategoryService#deactivate" },
+    { "id": "AP1", "module": "catalog", "method": "GET", "path": "/api/admin/products", "role": "ADMIN", "impl": "AdminProductController#list", "service": "AdminProductService#list" },
+    { "id": "AP2", "module": "catalog", "method": "GET", "path": "/api/admin/products/{id}", "role": "ADMIN", "impl": "AdminProductController#detail", "service": "AdminProductService#detail" },
+    { "id": "AP3", "module": "catalog", "method": "POST", "path": "/api/admin/products", "role": "ADMIN", "impl": "AdminProductController#create", "service": "AdminProductService#create" },
+    { "id": "AP4", "module": "catalog", "method": "PUT", "path": "/api/admin/products/{id}", "role": "ADMIN", "impl": "AdminProductController#update", "service": "AdminProductService#update" },
+    { "id": "AP5", "module": "catalog", "method": "DELETE", "path": "/api/admin/products/{id}", "role": "ADMIN", "impl": "AdminProductController#offShelf", "service": "AdminProductService#offShelf" },
+    { "id": "AP6", "module": "catalog", "method": "POST", "path": "/api/admin/products/{id}/skus", "role": "ADMIN", "impl": "AdminProductController#addSku", "service": "AdminProductService#addSku" },
+    { "id": "AP7", "module": "catalog", "method": "PUT", "path": "/api/admin/skus/{skuId}", "role": "ADMIN", "impl": "AdminProductController#updateSku", "service": "AdminProductService#updateSku" },
+    { "id": "AO1", "module": "order", "method": "GET", "path": "/api/admin/orders", "role": "ADMIN", "impl": "AdminOrderController#list", "service": "AdminOrderService#list" },
+    { "id": "AO2", "module": "order", "method": "GET", "path": "/api/admin/orders/{id}", "role": "ADMIN", "impl": "AdminOrderController#detail", "service": "AdminOrderService#detail" },
+    { "id": "AO3", "module": "order", "method": "PATCH", "path": "/api/admin/orders/{id}/status", "role": "ADMIN", "impl": "AdminOrderController#updateStatus", "service": "AdminOrderService#updateStatus" }
+  ],
+  "order_state_machine": {
+    "PENDING": ["PAID", "CANCELLED"],
+    "PAID": ["SHIPPED", "CANCELLED"],
+    "SHIPPED": ["COMPLETED"],
+    "COMPLETED": [],
+    "CANCELLED": []
+  },
+  "files_added": [
+    "config/SecurityConfig.java (hardened)",
+    "repository/CategoryRepository.java, ProductRepository.java, ProductSkuRepository.java, OrderRepository.java (admin queries)",
+    "dto/admin/category/{CreateCategoryRequest,UpdateCategoryRequest,AdminCategoryResponse}.java",
+    "dto/admin/product/{CreateProductRequest,UpdateProductRequest,CreateSkuRequest,UpdateSkuRequest,AdminSkuResponse,AdminProductSummaryResponse,AdminProductDetailResponse}.java",
+    "dto/admin/order/{AdminOrderSummaryResponse,AdminOrderDetailResponse,UpdateOrderStatusRequest}.java",
+    "service/admin/{AdminCategoryService,AdminProductService,AdminOrderService}.java",
+    "controller/admin/{AdminCategoryController,AdminProductController,AdminOrderController}.java"
+  ]
+}

@@ -1,0 +1,88 @@
+const { chromium } = require('playwright')
+const assert = require('node:assert/strict')
+async function main() {
+  const { createServer } = await import('vite')
+  const server = await createServer({ mode: 'admin', server: { host: '127.0.0.1', port: 5177, strictPort: true } })
+  let browser
+  try {
+    await server.listen()
+    browser = await chromium.launch({ channel: 'msedge', headless: true })
+    const context = await browser.newContext()
+    await context.addInitScript(() => {
+      const member = { id: 1, name: '管理員', email: 'admin@test.local', role: 'ADMIN' }
+      localStorage.setItem('catshop_session', JSON.stringify({ token: 'test-token', member, epoch: 'filters', reason: '' }))
+      localStorage.setItem('catshop_token', 'test-token'); localStorage.setItem('catshop_member', JSON.stringify(member))
+    })
+    const calls = [], errors = []
+    let startedSlow = false
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+    await context.route(url => !['127.0.0.1', 'localhost'].includes(url.hostname), route => route.abort())
+    await context.route(url => /^\/(api|admin-api)\//.test(url.pathname), async route => {
+      const url = new URL(route.request().url()), params = Object.fromEntries(url.searchParams)
+      calls.push({ path: url.pathname, params })
+      const success = data => route.fulfill({ json: { success: true, data } })
+      if (url.pathname === '/admin-api/admin/categories') return success({ content: [{ id: 8, name: '測試分類', isActive: false }], totalPages: 1, last: true })
+      if (url.pathname === '/admin-api/admin/products') {
+        if (params.brand === 'slow') { startedSlow = true; await delay(700) }
+        return success({ content: [{ id: 1, name: params.brand === 'slow' ? '過時商品' : '測試商品', basePrice: 100, totalStock: 10, isActive: true, status: 'ON_SALE' }], totalPages: 2 })
+      }
+      if (url.pathname === '/admin-api/admin/orders') return success({ content: [], totalPages: 2 })
+      errors.push(url.pathname); return route.fulfill({ status: 500, json: {} })
+    })
+    const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message))
+    const latest = section => calls.filter(call => call.path === '/admin-api/admin/' + section).at(-1).params
+    const waitIdle = () => page.getByRole('button', { name: '搜尋', exact: true }).waitFor({ state: 'visible' }).then(() => page.waitForFunction(() => !document.querySelector('form[aria-label="管理列表篩選"] button[type=submit]').disabled))
+    await page.goto('http://127.0.0.1:5177/products'); await waitIdle()
+    const accountActions = page.locator('.admin-account-actions')
+    assert.equal(await accountActions.locator('.admin-account-avatar svg').count(), 1)
+    assert.equal(await accountActions.locator('.admin-account-name').innerText(), '管理員')
+    assert.equal(await accountActions.getByRole('button', { name: '登出', exact: true }).locator('svg').count(), 1)
+    assert.equal(await accountActions.getByRole('button', { name: '登出', exact: true }).evaluate(button => button.getBoundingClientRect().height), 30)
+    await page.getByLabel('分類篩選', { exact: true }).selectOption('8')
+    await page.getByLabel('品牌篩選', { exact: true }).fill(' Acme ')
+    await page.getByLabel('啟用狀態', { exact: true }).selectOption('false')
+    await page.getByLabel('名稱搜尋', { exact: true }).fill(' 飼料 ')
+    await page.getByRole('button', { name: '搜尋', exact: true }).click(); await waitIdle()
+    assert.deepEqual(latest('products'), { page: '0', size: '20', keyword: '飼料', isActive: 'false', categoryId: '8', brand: 'Acme' })
+    await page.getByLabel('品牌篩選', { exact: true }).fill('未套用')
+    await page.getByRole('button', { name: '下一頁', exact: true }).click(); await waitIdle()
+    assert.equal(latest('products').page, '1'); assert.equal(latest('products').brand, 'Acme')
+    await page.getByRole('button', { name: '搜尋', exact: true }).click(); await waitIdle(); assert.equal(latest('products').page, '0')
+    await page.getByRole('button', { name: '清除篩選', exact: true }).click(); await waitIdle()
+    assert.deepEqual(latest('products'), { page: '0', size: '20' })
+    await page.getByRole('link', { name: '訂單管理', exact: true }).click(); await waitIdle()
+    assert.deepEqual(latest('orders'), { page: '0', size: '20' })
+    await page.getByLabel('會員編號', { exact: true }).fill('42')
+    await page.getByLabel('訂單編號', { exact: true }).fill(' ORDER ')
+    await page.getByLabel('開始日期', { exact: true }).fill('2026-01-02')
+    await page.getByLabel('結束日期', { exact: true }).fill('2026-01-02')
+    await page.getByLabel('狀態', { exact: true }).selectOption('PAID'); await waitIdle()
+    assert.deepEqual(latest('orders'), { page: '0', size: '20', orderNo: 'ORDER', status: 'PAID', memberId: '42', from: '2026-01-02', to: '2026-01-02' })
+    const before = calls.length
+    await page.getByLabel('開始日期', { exact: true }).fill('2026-01-03')
+    await page.getByRole('button', { name: '搜尋', exact: true }).click()
+    await page.getByRole('alert').filter({ hasText: '開始日期不可晚於結束日期' }).waitFor()
+    assert.equal(calls.length, before)
+    await page.getByLabel('開始日期', { exact: true }).fill('2026-01-02')
+    await page.getByLabel('會員編號', { exact: true }).fill('1.5')
+    await page.getByRole('button', { name: '搜尋', exact: true }).click()
+    await page.getByRole('alert').filter({ hasText: '會員編號須為有效的正整數' }).waitFor()
+    assert.equal(calls.length, before)
+    await page.getByRole('link', { name: '分類管理', exact: true }).click(); await waitIdle()
+    await page.getByLabel('啟用狀態', { exact: true }).selectOption('false')
+    await page.getByRole('button', { name: '搜尋', exact: true }).click(); await waitIdle()
+    assert.deepEqual(calls.filter(call => call.path.endsWith('/categories') && call.params.size === '20').at(-1).params, { page: '0', size: '20', isActive: 'false' })
+    assert.deepEqual(latest('categories'), { page: '0', size: '20', isActive: 'false' }) // Category list no longer loads editor options; the dedicated editor does.
+    await page.getByRole('link', { name: '商品管理', exact: true }).click(); await waitIdle()
+    await page.getByLabel('品牌篩選', { exact: true }).fill('slow')
+    await page.getByRole('button', { name: '搜尋', exact: true }).click()
+    for (let attempt = 0; !startedSlow && attempt < 500; attempt++) await delay(10)
+    assert.ok(startedSlow, 'Delayed product request must start before changing section')
+    await page.getByRole('link', { name: '訂單管理', exact: true }).click(); await waitIdle(); await delay(800)
+    assert.equal(await page.getByText('過時商品', { exact: true }).count(), 0)
+    assert.equal(await page.getByRole('heading', { name: '訂單管理', exact: true }).count(), 1)
+    assert.deepEqual(errors, [])
+    console.log('PASS admin filters: exact parameters, false boolean, applied-filter paging/reset, section reset, validation, unfiltered category options and stale response protection; no real API writes.')
+  } finally { if (browser) await browser.close(); await server.close() }
+}
+main().catch(error => { console.error(error); process.exitCode = 1 })

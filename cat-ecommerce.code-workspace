@@ -1,0 +1,26 @@
+{
+  "folders": [{ "path": "." }],
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "喵喵商城：持久化後端", "type": "process", "command": "powershell.exe",
+        "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}/backend/scripts/start-persistent-preview.ps1"],
+        "options": { "cwd": "${workspaceFolder}/backend" },
+        "isBackground": true, "problemMatcher": [], "presentation": { "panel": "dedicated" }
+      },
+      {
+        "label": "喵喵商城：前台 5173", "type": "process", "command": "npm.cmd",
+        "args": ["run", "dev", "--", "--host", "127.0.0.1"],
+        "options": { "cwd": "${workspaceFolder}/frontend" },
+        "isBackground": true, "problemMatcher": [], "presentation": { "panel": "dedicated" }
+      },
+      {
+        "label": "喵喵商城 Admin：後台 5174", "type": "process", "command": "npm.cmd",
+        "args": ["run", "dev:admin", "--", "--host", "127.0.0.1"],
+        "options": { "cwd": "${workspaceFolder}/frontend" },
+        "isBackground": true, "problemMatcher": [], "presentation": { "panel": "dedicated" }
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 460" fill="none">
+ <circle cx="326" cy="219" r="184" fill="#e5ecda"/><circle cx="486" cy="77" r="30" fill="#e8b469"/>
+ <path d="M68 406h486" stroke="#becab6" stroke-width="2"/>
+ <path d="M487 393V223m0 89c-64-5-68-55-68-55 57-3 68 55 68 55zm0-47c-3-54 49-70 49-70 14 54-49 70-49 70z" stroke="#657d64" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M463 345h51l-8 59h-35z" fill="#d3a16f"/>
+ <path d="M124 155h121l12 245H111z" fill="#32594d"/><path d="M124 155l16-18h88l17 18" fill="#e9bd7b"/>
+ <rect x="140" y="200" width="79" height="95" rx="36" fill="#f5ead4"/>
+ <path d="M159 244v-20l14 10c6-3 10-3 16 0l14-10v20c0 15-44 15-44 0z" fill="#d99a67"/>
+ <path d="M146 322h68m-60 15h52" stroke="#f5ead4" stroke-width="5" stroke-linecap="round"/>
+ <path d="M382 379c66 26 103-18 77-53-14-17-41-9-37 10" stroke="#c48454" stroke-width="24" stroke-linecap="round"/>
+ <ellipse cx="328" cy="326" rx="86" ry="72" fill="#d89d6c"/>
+ <path d="M265 235l-4-90 58 41 45-5 56-42-3 98" fill="#d89d6c"/>
+ <path d="M280 181l3 39 27-19m75-3 17-18-1 39" fill="#ecc6ac"/>
+ <ellipse cx="341" cy="245" rx="83" ry="69" fill="#e6b98d"/>
+ <path d="M316 191l7 21m19-25 2 22m17-20-4 22" stroke="#b7794f" stroke-width="7" stroke-linecap="round"/>
+ <path d="M296 245c6-7 13-7 19 0m47 0c6-7 13-7 19 0" stroke="#365346" stroke-width="5" stroke-linecap="round"/>
+ <path d="M332 256h14l-7 7z" fill="#ac6e5a"/><path d="M339 263v9m0 0c-8 7-14 3-15-2m15 2c8 7 14 3 15-2" stroke="#365346" stroke-width="3" stroke-linecap="round"/>
+ <path d="M275 262l-31-4m33 14-33 5m155-15 30-4m-31 14 33 5" stroke="#8d6e55" stroke-width="3" stroke-linecap="round"/>
+ <ellipse cx="310" cy="379" rx="24" ry="15" fill="#edc49e"/><ellipse cx="365" cy="379" rx="24" ry="15" fill="#edc49e"/>
+ <path d="M227 381h85l-14 25h-56z" fill="#c78260"/><ellipse cx="269" cy="381" rx="43" ry="10" fill="#e6bf9d"/>
+ <path d="M85 83l5 13 14 2-11 9 2 14-10-8-12 8 2-14-11-9 15-2z" fill="#d99a67"/>
+ <path d="M445 144l5 10 10 2-8 7 1 11-8-6-9 6 2-11-8-7 11-2z" fill="#7d9275"/>
+</svg>
