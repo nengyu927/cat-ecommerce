@@ -3,6 +3,7 @@ import { cartApi } from '@/api'
 import { useAuthStore } from './auth'
 const pendingFetches = new WeakMap()
 const queues = new WeakMap()
+const noticeTimers = new WeakMap()
 
 function invalidateFetch(store) {
   pendingFetches.delete(store)
@@ -41,7 +42,8 @@ export const useCartStore = defineStore('cart', {
     totalQuantity: 0,
     totalAmount: 0,
     loading: false,
-    previewOpen: false
+    previewOpen: false,
+    addedNotice: ''
   }),
   getters: {
     count: (state) => state.totalQuantity,
@@ -50,6 +52,16 @@ export const useCartStore = defineStore('cart', {
   actions: {
     openPreview() { this.previewOpen = true },
     closePreview() { this.previewOpen = false },
+    showAddedNotice() {
+      this.clearAddedNotice()
+      this.addedNotice = '已加入購物車'
+      noticeTimers.set(this, setTimeout(() => this.clearAddedNotice(), 3000))
+    },
+    clearAddedNotice() {
+      clearTimeout(noticeTimers.get(this))
+      noticeTimers.delete(this)
+      this.addedNotice = ''
+    },
     apply(data) {
       this.items = data?.items || []
       this.totalQuantity = data?.totalQuantity || 0
@@ -96,6 +108,7 @@ export const useCartStore = defineStore('cart', {
       return enqueue(this, () => cartApi.clear(), () => this.apply(null))
     },
     reset() {
+      this.clearAddedNotice()
       this.closePreview()
       queues.delete(this)
       pendingFetches.delete(this)

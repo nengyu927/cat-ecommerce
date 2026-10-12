@@ -7,6 +7,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
+    "test:storefront-premium": "node scripts/storefront-premium.cjs",
     "test:demo-fill": "node scripts/demo-fill.cjs",
     "test:admin-list-confirmation": "node scripts/admin-list-confirmation.cjs",
     "test:admin-draft-confirmation": "node scripts/admin-draft-confirmation.cjs",

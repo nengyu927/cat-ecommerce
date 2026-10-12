@@ -49,8 +49,8 @@ async function main(){
      }
      await p.getByLabel('數量',{exact:true}).fill('2')
      await p.getByRole('button',{name:'加入購物車',exact:true}).click()
-     await p.getByText('已加入購物車 ✅',{exact:true}).waitFor()
-     await p.getByRole('dialog',{name:'購物車預覽'}).waitFor()
+     await p.getByText('已加入購物車',{exact:true}).waitFor()
+     assert.equal(await p.getByRole('dialog',{name:'購物車預覽'}).isVisible(),false)
      assert.deepEqual(s.writes,[{skuId:11,quantity:2}]);assert.equal(await p.getByRole('alert').count(),0)
     })
     await scenario('cart failure preserves product, SKU and quantity for retry',async(p,s)=>{
@@ -62,7 +62,7 @@ async function main(){
      assert.equal(await p.getByLabel('數量',{exact:true}).inputValue(),'2')
      assert.equal(await p.getByRole('button',{name:'重試載入商品',exact:true}).count(),0)
      s.failure=false;await p.getByRole('button',{name:'加入購物車',exact:true}).click()
-     await p.getByText('已加入購物車 ✅',{exact:true}).waitFor();assert.equal(s.writes.length,2)
+     await p.getByText('已加入購物車',{exact:true}).waitFor();assert.equal(s.writes.length,2)
     })
     for(const failure of [false,true]){
      await scenario('pending '+(failure?'failed':'successful')+' add cannot change next product UI',async(p,s)=>{
@@ -84,7 +84,7 @@ async function main(){
       })
       assert.equal(await p.getByRole('button',{name:'加入購物車',exact:true}).isEnabled(),true)
       await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
-      assert.equal(await p.getByText('已加入購物車 ✅',{exact:true}).count(),0)
+      assert.equal(await p.getByText('已加入購物車',{exact:true}).count(),0)
       assert.equal(await p.getByRole('alert').count(),0)
       assert.equal(await p.getByLabel('數量',{exact:true}).inputValue(),'1')
       assert.equal(s.writes.length,1)

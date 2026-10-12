@@ -16,7 +16,7 @@ const router = createRouter({
     ...(!isStorefrontApp ? createAdminRoutes(isAdminApp) : []),
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') }
   ],
-  scrollBehavior: () => ({ top: 0 })
+  scrollBehavior: (to, from, saved) => saved || (['#seasonal','#categories','#daily-picks','#living-edit','#collection-products'].includes(to.hash) ? { el: to.hash, top: (document.querySelector('.site-header')?.offsetHeight || 130) + 24 } : { top: 0 })
 })
 router.beforeEach(to => {
   const auth = useAuthStore()

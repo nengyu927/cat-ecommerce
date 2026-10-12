@@ -1,6 +1,5 @@
 <script setup>
 import DemoFillButton from '@/components/DemoFillButton.vue'
-import FeedbackNotice from '@/components/FeedbackNotice.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import {safeListReturn} from '@/utils/listQuery'
 import { useRoute, useRouter } from 'vue-router'
@@ -25,7 +24,6 @@ const actionError = ref('')
 const selectedSkuId = ref(null)
 const quantity = ref(1)
 const adding = ref(false)
-const message = ref('')
 const related = ref([])
 const relatedError = ref('')
 const relatedLoading = ref(false)
@@ -51,7 +49,6 @@ async function loadProduct() {
   product.value=null
   loading.value = true
   error.value = ''
-  message.value = ''
   quantity.value = 1
   related.value = []
   relatedError.value = ''
@@ -75,12 +72,11 @@ watch(() => route.params.id, loadProduct, { immediate: true })
 function selectedSku() {
   return product.value?.skus?.find(s => s.id === selectedSkuId.value)
 }
-watch([selectedSkuId,quantity],()=>{actionError.value='';message.value=''})
+watch([selectedSkuId,quantity],()=>{actionError.value=''})
 
 async function addToCart() {
   if(adding.value)return
   actionError.value=''
-  message.value=''
   if (!auth.isLoggedIn) {
     router.push({ name: 'login', query: { redirect: route.fullPath } })
     return
@@ -95,7 +91,7 @@ async function addToCart() {
   const current=()=>sequence===loadSequence && operation===addSequence
   try {
     await cart.addItem(selectedSkuId.value, quantity.value)
-    if(current()) { message.value = '已加入購物車 ✅'; cart.openPreview() }
+    if(current())cart.showAddedNotice()
   } catch (e) {
     if(current())actionError.value = e.message
   } finally {
@@ -152,7 +148,6 @@ function fillDemo() { if (loading.value || adding.value) return; const sku = pro
           </div>
 
           <div v-if="actionError" class="alert alert-error" role="alert">{{ actionError }}</div>
-<FeedbackNotice :message="message" />
 
           <div class="row mt-2">
             <button class="btn btn-primary" :disabled="adding || !selectedSkuId || (selectedSku()?.stock ?? 0) <= 0" @click="addToCart">

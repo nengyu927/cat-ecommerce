@@ -6,6 +6,7 @@ import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { isStorefrontApp } from '@/config/surface'
 import CartDrawer from '@/components/CartDrawer.vue'
+import CartAddedToast from '@/components/CartAddedToast.vue'
 import HeaderCartList from '@/components/HeaderCartList.vue'
 import { useStorefrontFeedback } from '@/composables/useStorefrontFeedback'
 
@@ -120,6 +121,7 @@ function logout() {
     <div class="store-nav-bar"><div class="container">
       <nav class="nav" aria-label="商城主選單">
         <RouterLink to="/">首頁</RouterLink>
+        <RouterLink :to="{name:'home',hash:'#seasonal'}" active-class="" exact-active-class="" :class="{'router-link-active':route.name==='collection'||route.hash==='#seasonal'}">生活企劃</RouterLink>
         <RouterLink to="/products">所有商品</RouterLink>
         <RouterLink to="/categories">分類</RouterLink>
         <RouterLink v-if="auth.isLoggedIn" to="/orders">我的訂單</RouterLink>
@@ -136,11 +138,12 @@ function logout() {
     <RouterView v-if="!route.meta.requiresAuth || auth.isLoggedIn" :key="route.meta.requiresAuth ? auth.epoch : undefined" />
   </main>
   <CartDrawer />
+  <CartAddedToast />
 
   <footer class="site-footer">
     <div class="container footer-grid">
       <div><strong>喵喵商城</strong><p>為主子挑選，也為日常留一點溫柔。</p><small>貓用品電商示範專案 · 非正式營運網站</small></div>
-      <div><h2>逛逛商城</h2><RouterLink to="/products">所有商品</RouterLink><RouterLink to="/categories">商品分類</RouterLink></div>
+      <div><h2>逛逛商城</h2><RouterLink to="/products">所有商品</RouterLink><RouterLink to="/categories">商品分類</RouterLink><RouterLink :to="{name:'home',hash:'#seasonal'}">生活企劃</RouterLink></div>
       <div><h2>會員服務</h2><RouterLink to="/account">會員中心</RouterLink><RouterLink to="/orders">訂單查詢</RouterLink></div>
     </div><div class="container footer-bottom">MEOW DAILY · 好好照顧，一起生活。</div>
   </footer>

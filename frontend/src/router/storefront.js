@@ -1,6 +1,7 @@
 // Storefront-only routes never register Admin operations.
 export const storefrontRoutes = [
   { path: '/', name: 'home', component: () => import('@/views/HomeView.vue') },
+  { path: '/collections/:slug', name: 'collection', component: () => import('@/views/CollectionView.vue') },
   { path: '/products', name: 'products', component: () => import('@/views/ProductListView.vue') },
   { path: '/products/:id', name: 'product-detail', component: () => import('@/views/ProductDetailView.vue') },
   { path: '/product/:id', redirect: to => `/products/${to.params.id}` },

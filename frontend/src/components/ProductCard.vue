@@ -35,7 +35,7 @@ async function add(){
   auth.syncFromStorage()
   if(!skuId||!current())return
   await cart.addItem(skuId,1)
-  if(current())cart.openPreview()
+  if(current())cart.showAddedNotice()
  }catch(e){if(current())error.value=e.message}
  finally{if(current())adding.value=false}
 }
@@ -62,7 +62,7 @@ watch(() => props.product.primaryImageUrl, () => { failed.value = false })
     </div>
     <div class="product-body">
       <div class="product-brand">{{ product.brand || '喵喵日常選品' }}</div>
-      <div class="product-name">{{ product.name }}</div>
+      <component :is="product.available === false ? 'div' : 'RouterLink'" :to="productTarget" class="product-name">{{ product.name }}</component>
       <span v-if="product.available === false" class="muted">商品已下架或暫停販售</span>
       <div class="product-card-bottom"><div class="product-price">NT$ {{ Number(product.basePrice).toLocaleString() }}</div><button type="button" class="btn btn-primary quick-add-button" :aria-label="'加入購物車：'+product.name" :disabled="adding || product.available===false" @click="add">{{ adding?'處理中…':'加入購物車' }}</button></div>
     </div>

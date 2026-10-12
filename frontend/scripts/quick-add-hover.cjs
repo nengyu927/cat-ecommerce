@@ -27,7 +27,7 @@ async function main(){
    const p=await ctx.newPage();p.on('pageerror',e=>errors.push(e.message))
    await p.goto('http://127.0.0.1:5214/products')
    await p.locator('.product-body').waitFor()
-   assert.equal(await p.locator('.product-body a').count(),0)
+   assert.equal(await p.locator('.product-body a').count(),1)
    if(!mobile){
     await p.locator('.member-icon-link').hover()
     const menu=p.getByRole('navigation',{name:'會員功能選單'})
@@ -39,15 +39,23 @@ async function main(){
    }
    const add=p.getByRole('button',{name:'加入購物車：快速商品',exact:true})
    await add.evaluate(b=>{b.click();b.click()})
-   await p.getByRole('dialog',{name:'購物車預覽'}).waitFor();assert.deepEqual(writes,[{skuId:11,quantity:1}])
-   assert.equal(new URL(p.url()).pathname,'/products');await p.keyboard.press('Escape')
+   await p.getByText('已加入購物車',{exact:true}).waitFor();assert.deepEqual(writes,[{skuId:11,quantity:1}])
+   const drawer=p.getByRole('dialog',{name:'購物車預覽'})
+   assert.equal(await drawer.isVisible(),false)
+   assert.equal(new URL(p.url()).pathname,'/products')
+   await p.getByRole('button',{name:'關閉加入購物車提示',exact:true}).click();await p.getByText('已加入購物車',{exact:true}).waitFor({state:'hidden'})
+   await p.getByRole('button',{name:'購物車，1 件商品',exact:true}).click();await drawer.waitFor();await p.keyboard.press('Escape');await drawer.waitFor({state:'hidden'})
    skus=[...skus,{id:12,specName:'大包',price:200,stock:2},{id:13,specName:'缺貨包',price:300,stock:0}]
    await add.click();const modal=p.getByRole('dialog',{name:'選擇商品規格'})
    await modal.waitFor();assert.equal(await modal.getByRole('button',{name:'確認加入購物車',exact:true}).isDisabled(),true)
    assert.equal(await modal.locator('option[value="13"]').isDisabled(),true)
    await modal.getByRole('button',{name:'取消',exact:true}).click();assert.equal(writes.length,1)
    await add.click();await modal.getByLabel('規格與價格').selectOption('12');await modal.getByRole('button',{name:'確認加入購物車',exact:true}).click()
-   await p.getByRole('dialog',{name:'購物車預覽'}).waitFor();assert.deepEqual(writes[1],{skuId:12,quantity:1});await p.keyboard.press('Escape')
+   await p.getByText('已加入購物車',{exact:true}).waitFor();assert.deepEqual(writes[1],{skuId:12,quantity:1})
+   assert.equal(await drawer.isVisible(),false)
+   await p.getByRole('button',{name:'購物車，2 件商品',exact:true}).waitFor()
+   assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true)
+   await p.getByText('已加入購物車',{exact:true}).waitFor({state:'hidden',timeout:5000})
    skus=[skus[0]];fail=true;await add.click();await p.getByRole('alert').filter({hasText:'庫存變動'}).waitFor()
    assert.equal(await p.getByRole('dialog',{name:'購物車預覽'}).isVisible(),false)
    fail=false;let release;detailGate={wait:new Promise(done=>{release=done})}
@@ -57,7 +65,7 @@ async function main(){
    release();detailGate=null;await p.waitForFunction(()=>!document.querySelector('.quick-add-button').disabled)
    assert.equal(writes.length,3)
    await add.click();await p.waitForURL('**/login?redirect=/products')
-   await ctx.close();console.log('PASS quick add/header: single/multiple SKU, no silent choice, duplicate/stock failure, logout/guest, image-only detail and hover '+(mobile?'touch':'desktop'))
+   await ctx.close();console.log('PASS quick add/header: success toast, auto/manual dismissal, manual drawer, single/multiple SKU, duplicate/stock failure, logout/guest and hover '+(mobile?'touch':'desktop'))
   }
   assert.deepEqual(errors,[])
  }finally{await browser?.close();await server.close()}

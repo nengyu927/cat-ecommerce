@@ -6,6 +6,7 @@ import { isAdminApp } from './config/surface'
 import router from './router'
 import './assets/main.css'
 import './assets/refinement.css'
+import './assets/storefront-premium.css'
 
 const app = createApp(isAdminApp ? AdminApp : App)
 document.title = isAdminApp ? '喵喵商城 Admin' : '喵喵商城'
