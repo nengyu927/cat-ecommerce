@@ -1,4 +1,5 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
 import ListPagination from '@/components/ListPagination.vue'
 import { ref,watch,onBeforeUnmount } from 'vue'
 import { useRoute,useRouter } from 'vue-router'
@@ -33,6 +34,7 @@ function search(){
 function clear(){keyword.value='';status.value='';role.value='';if(Object.keys(route.query).length)router.push({name:'admin-members'});else load()}
 watch(()=>route.fullPath,load,{immediate:true})
 onBeforeUnmount(()=>{++sequence})
+function fillDemo() { if (loading.value) return; const member = result.value?.content?.find(item => item.role === 'CUSTOMER') || result.value?.content?.[0]; keyword.value = member?.name || '林芷晴'; status.value = member?.status || 'ACTIVE'; role.value = member?.role || 'CUSTOMER' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -40,6 +42,7 @@ onBeforeUnmount(()=>{++sequence})
   <p class="page-sub">搜尋會員、停用或恢復一般會員；管理員帳號受保護，不提供密碼與角色修改。</p>
   <div v-if="error" class="alert alert-error" role="alert">{{ error }} <button class="btn btn-ghost btn-sm" @click="load">重試載入</button></div>
   <form class="card row member-filters" @submit.prevent="search">
+<DemoFillButton :disabled="loading" @fill="fillDemo" label="一鍵填入搜尋條件" />
    <input v-model="keyword" class="input" aria-label="會員搜尋" placeholder="姓名、電子郵件或電話" maxlength="200" />
    <select v-model="status" class="input" aria-label="會員狀態"><option value="">全部狀態</option><option value="ACTIVE">啟用</option><option value="DISABLED">停用</option></select>
    <select v-model="role" class="input" aria-label="會員角色"><option value="">全部角色</option><option value="CUSTOMER">一般會員</option><option value="ADMIN">管理員</option></select>

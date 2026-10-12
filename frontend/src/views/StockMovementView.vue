@@ -1,4 +1,5 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
 import ListPagination from '@/components/ListPagination.vue'
 import { computed, ref, watch, onBeforeUnmount } from 'vue'
 import {parseAdminListQuery} from '@/utils/adminListQuery'
@@ -30,6 +31,7 @@ function search() {
 function clear() {skuId.value='';reason.value='';const target={name:'admin-movements',query:typeof route.query.returnTo==='string'?{returnTo:route.query.returnTo}:{}};if(router.resolve(target).fullPath===route.fullPath)load();else router.push(target)}
 watch(()=>route.fullPath,load,{immediate:true})
 onBeforeUnmount(()=>{++version})
+function fillDemo() { if (loading.value) return; const item = result.value?.content?.[0]; skuId.value = item?.skuId ? String(item.skuId) : ''; reason.value = item?.reason || 'ADMIN_ADJUSTMENT' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -38,6 +40,7 @@ onBeforeUnmount(()=>{++version})
   <p class="page-sub">由新到舊顯示實際數量變更；功能啟用前的庫存不補成歷史紀錄。</p>
   <div v-if="error" class="alert alert-error" role="alert">{{ error }} <button class="btn btn-ghost btn-sm" :disabled="loading" @click="load">重試載入</button></div>
   <form class="card row" style="padding:16px;flex-wrap:wrap;margin-bottom:24px" @submit.prevent="search">
+<DemoFillButton :disabled="loading" @fill="fillDemo" label="一鍵填入搜尋條件" />
    <input v-model="skuId" class="input" aria-label="SKU ID" placeholder="SKU ID" inputmode="numeric" maxlength="19" style="max-width:220px" />
    <select v-model="reason" class="input" aria-label="異動原因" style="max-width:240px"><option value="">全部原因</option><option v-for="(label,key) in reasons" :key="key" :value="key">{{ label }}</option></select>
    <button class="btn btn-primary" type="submit">搜尋</button><button class="btn btn-ghost" type="button" @click="clear">清除條件</button>

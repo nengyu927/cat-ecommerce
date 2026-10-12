@@ -93,6 +93,7 @@ async function remove(item) {
                     class="input" style="width: 76px;"
                     @change="updateQty(item, Number($event.target.value))"
                   />
+                  <button type="button" class="btn btn-ghost btn-sm" :disabled="busy || item.stock <= 0" @click="updateQty(item, Math.min(2, item.stock))">一鍵設定數量</button>
                 </td>
                 <td style="font-weight: 700;">NT$ {{ Number(item.subtotal).toLocaleString() }}</td>
                 <td><button class="btn btn-danger btn-sm" :disabled="busy" @click="remove(item)">移除</button></td>

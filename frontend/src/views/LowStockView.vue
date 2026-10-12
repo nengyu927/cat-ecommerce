@@ -1,4 +1,5 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
 import ListPagination from '@/components/ListPagination.vue'
 import { ref, watch, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -30,6 +31,7 @@ function search() {
 function clear() { keyword.value=''; outOnly.value=false; if(Object.keys(route.query).length)router.push({name:'admin-inventory'});else load() }
 watch(()=>route.fullPath,load,{immediate:true})
 onBeforeUnmount(()=>{++version})
+function fillDemo() { if (loading.value) return; keyword.value = result.value?.items?.content?.[0]?.skuCode || '雞肉'; outOnly.value = result.value?.items?.content?.[0]?.stock === 0 }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -37,6 +39,7 @@ onBeforeUnmount(()=>{++version})
   <p class="page-sub">啟用商品與規格，庫存小於或等於安全庫存（含下架商品）。現有庫存不會因查詢而變動。</p>
   <div v-if="error" class="alert alert-error" role="alert">{{ error }} <button class="btn btn-ghost btn-sm" :disabled="loading" @click="load">重試載入</button></div>
   <form class="card row" style="padding:16px;flex-wrap:wrap;margin-bottom:24px" @submit.prevent="search">
+<DemoFillButton :disabled="loading" @fill="fillDemo" label="一鍵填入搜尋條件" />
    <input v-model="keyword" class="input" aria-label="低庫存搜尋" placeholder="商品名稱或 SKU 編號" maxlength="200" style="max-width:320px" />
    <label class="stock-filter"><input v-model="outOnly" type="checkbox" /> 只看缺貨</label>
    <button class="btn btn-primary" type="submit">搜尋</button><button class="btn btn-ghost" type="button" @click="clear">清除條件</button>

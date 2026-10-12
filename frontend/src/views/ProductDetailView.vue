@@ -1,4 +1,5 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
 import FeedbackNotice from '@/components/FeedbackNotice.vue'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import {safeListReturn} from '@/utils/listQuery'
@@ -101,6 +102,7 @@ async function addToCart() {
     if(current())adding.value = false
   }
 }
+function fillDemo() { if (loading.value || adding.value) return; const sku = product.value?.skus?.find(item => item.stock > 0); if (!sku) return; selectedSkuId.value = sku.id; quantity.value = Math.min(2, sku.stock) }
 </script>
 
 <template>
@@ -134,6 +136,7 @@ async function addToCart() {
           </dl>
 
           <div v-if="product.skus?.length" class="field">
+<DemoFillButton :disabled="adding || !product.skus?.some(s => s.stock > 0)" @fill="fillDemo" label="一鍵填入規格與數量" />
             <label>選擇規格</label>
             <select v-model="selectedSkuId" class="select" aria-label="選擇規格" :disabled="adding">
               <option v-for="s in product.skus" :key="s.id" :value="s.id" :disabled="s.stock <= 0">

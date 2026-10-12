@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { uniqueDemoId } from '@/utils/demoFill'
 import {adminReturnQuery} from '@/utils/adminListQuery'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -65,6 +67,7 @@ async function save(){
  }catch(e){if(current===sequence)error.value=e.message}
  finally{if(current===sequence)saving.value=false}
 }
+function fillDemo() { if (blocked.value || !ready.value) return; Object.assign(form, { name: '日常營養補給', slug: isNew.value ? `daily-nutrition-${uniqueDemoId()}` : form.slug, parentId: null, sortOrder: 30, isActive: true }); error.value = ''; message.value = '' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -75,6 +78,7 @@ async function save(){
   <p v-if="message" class="alert alert-ok" role="status">{{ message }}</p>
   <button v-if="ready&&!error" type="button" class="btn btn-ghost mb-2" :disabled="blocked||loading" @click="retry">重新載入</button>
   <form v-if="ready" class="card category-form" aria-label="分類編輯" @submit.prevent="save">
+<DemoFillButton :disabled="blocked" @fill="fillDemo" />
    <fieldset :disabled="blocked">
     <div class="field"><label>名稱<input v-model="form.name" class="input" maxlength="100" required /></label></div>
     <div class="field"><label>網址代稱（小寫英數字與連字號）<input v-model="form.slug" class="input" maxlength="120" pattern="[a-z0-9-]+" required /></label></div>

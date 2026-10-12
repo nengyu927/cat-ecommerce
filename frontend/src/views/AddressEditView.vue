@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { addressDraft } from '@/utils/demoFill'
 import FeedbackNotice from '@/components/FeedbackNotice.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import {useConfirmation} from '@/composables/useConfirmation'
@@ -70,6 +72,7 @@ async function save(){
  }catch(e){if(current===sequence&&epoch===auth.epoch){error.value=e.message;captureAddress(e)}}
  finally{if(current===sequence)saving.value=false}
 }
+function fillDemo() { if (blocked.value || !loaded.value) return; Object.assign(addressForm, addressDraft()); clearAddress(); error.value = ''; message.value = '' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -78,6 +81,7 @@ async function save(){
 <p v-if="loading" role="status">載入地址中…</p><p v-if="error" class="alert alert-error" role="alert">{{ error }}</p><FeedbackNotice :message="message" />
 <button class="btn btn-ghost mb-2" :disabled="blocked||loading" @click="retry">重新載入地址</button>
   <form v-if="loaded" class="card address-form" aria-label="收件地址編輯" @submit.prevent="save">
+<DemoFillButton :disabled="blocked" @fill="fillDemo" />
           <div class="field"><label>收件人<input v-model="addressForm.receiverName" class="input" :disabled="blocked" required maxlength="100" :aria-invalid="!!addressFields.receiverName" :aria-describedby="addressFields.receiverName ? 'address-receiverName-error' : undefined" /></label><FieldError id="address-receiverName-error" :message="addressFields.receiverName" /></div>
           <div class="field"><label>電話<input v-model="addressForm.phone" class="input" :disabled="blocked" required maxlength="30" :aria-invalid="!!addressFields.phone" :aria-describedby="addressFields.phone ? 'address-phone-error' : undefined" /></label><FieldError id="address-phone-error" :message="addressFields.phone" /></div>
           <div class="field"><label>縣市<input v-model="addressForm.city" class="input" :disabled="blocked" required maxlength="50" :aria-invalid="!!addressFields.city" :aria-describedby="addressFields.city ? 'address-city-error' : undefined" /></label><FieldError id="address-city-error" :message="addressFields.city" /></div>

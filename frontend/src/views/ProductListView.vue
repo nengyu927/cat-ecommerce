@@ -1,4 +1,5 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
 import ListPagination from '@/components/ListPagination.vue'
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -101,6 +102,15 @@ function clearFilters() {
   inStock.value = false
   router.push({name:'products'})
 }
+function fillDemo() {
+ if (store.loading) return
+ const product = store.products[0]
+ keyword.value = product?.name || '雞肉'; categoryId.value = product?.categoryId || null; brand.value = product?.brand || ''
+ const price = Number(product?.basePrice)
+ minPrice.value = Number.isFinite(price) ? String(Math.max(0, Math.floor(price * 0.8))) : '100'
+ maxPrice.value = Number.isFinite(price) ? String(Math.ceil(price * 1.2 + 1)) : '1500'
+ inStock.value = false; sort.value = 'price,asc'; error.value = ''
+}
 </script>
 
 <template>
@@ -112,6 +122,7 @@ function clearFilters() {
       <p class="page-sub">共 {{ store.totalElements }} 件商品</p>
 
       <div class="card catalog-filter-panel" style="padding: 16px; margin-bottom: 24px;">
+<DemoFillButton :disabled="store.loading" @fill="fillDemo" label="一鍵填入搜尋條件" />
         <div class="row" style="flex-wrap: wrap;">
           <input v-model="keyword" class="input" aria-label="商品關鍵字" style="max-width: 260px;" placeholder="搜尋商品名稱…" @keyup.enter="applyFilters" />
           <select v-model="categoryId" aria-label="商品分類" class="select" style="max-width: 200px;" @change="applyFilters">

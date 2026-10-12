@@ -81,6 +81,7 @@ function logout() {
       <RouterLink to="/" class="logo"><span class="logo-mark" aria-hidden="true">ฅ</span><span class="logo-word">喵喵商城<small>MEOW DAILY</small></span></RouterLink>
       <form class="header-search" role="search" @submit.prevent="searchProducts">
         <input v-model="searchTerm" type="search" aria-label="搜尋商城商品" placeholder="找找主子的日常好物…" maxlength="100" />
+        <button type="button" aria-label="一鍵填入搜尋關鍵字" @click="searchTerm = '雞肉'">一鍵填入</button>
         <button type="submit" aria-label="搜尋商品">搜尋 <span aria-hidden="true">↗</span></button>
       </form>
       <div class="header-actions">

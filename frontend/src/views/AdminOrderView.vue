@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+
 import {adminReturnQuery} from '@/utils/adminListQuery'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -70,6 +72,7 @@ async function updateStatus(target){
  catch(e){if(current===sequence)error.value=e.message}
  finally{if(current===sequence)saving.value=false}
 }
+function fillDemo() { if (blocked.value || loading.value || !canShip.value || !isShipping.value) return; Object.assign(form, { carrier: '黑貓宅急便', trackingNumber: `2${String(Date.now()).slice(-11)}` }); error.value = '' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -84,6 +87,7 @@ async function updateStatus(target){
    <div class="card mt-3 order-items"><table class="table"><thead><tr><th>商品／規格</th><th>單價</th><th>數量</th><th>小計</th></tr></thead><tbody><tr v-for="item in order.items" :key="item.id"><td>{{ item.productName }}／{{ item.skuSpec }}</td><td>{{ item.unitPrice }}</td><td>{{ item.quantity }}</td><td>{{ item.subtotal }}</td></tr></tbody></table></div>
    <section class="card mt-3 order-panel" aria-label="出貨紀錄"><h3>出貨紀錄</h3><p v-if="shipment">{{ shipment.carrier }} · {{ shipment.trackingNumber }} · {{ new Date(shipment.shippedAt).toLocaleString('zh-TW') }}</p><p v-else>尚無出貨登錄資料（舊訂單不補造紀錄）。</p><p class="muted">人工登錄，非物流即時追蹤；已出貨不可取消訂單。</p></section>
    <form v-if="isShipping&&canShip" class="card mt-3 order-panel" aria-label="出貨登錄" @submit.prevent="ship">
+<DemoFillButton :disabled="blocked" @fill="fillDemo" />
     <div class="field"><label>物流公司<input v-model="form.carrier" class="input" maxlength="80" required :disabled="blocked" /></label></div>
     <div class="field"><label>物流單號<input v-model="form.trackingNumber" class="input" maxlength="100" required :disabled="blocked" /></label></div>
     <button class="btn btn-primary" :disabled="blocked">{{ saving?'處理中…':'確認出貨' }}</button>

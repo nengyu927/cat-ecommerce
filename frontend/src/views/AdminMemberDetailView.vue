@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+
 import ListPagination from '@/components/ListPagination.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import {useAdminDraftGuard} from '@/composables/useAdminDraftGuard'
@@ -68,6 +70,7 @@ async function save(){
  }catch(e){if(currentAction(readSequence,current,epoch))actionError.value=e.message+(e.status===409?'（取消後重新載入會員再操作）':'')}
  finally{saving.value=false}
 }
+function fillDemo() { if (blocked.value || !target.value) return; reason.value = target.value.status === 'ACTIVE' ? '會員反映帳號有異常登入，暫停使用並協助確認帳號安全。' : '已完成會員身分核對與帳號安全確認，恢復正常購物權限。'; actionError.value = '' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -104,6 +107,7 @@ async function save(){
    <form v-if="target" @submit.prevent="save"><p class="member-dialog-eyebrow">MEOW DAILY / 會員狀態確認</p><h2 id="member-status-title">{{ target.status==='ACTIVE'?'停用':'恢復' }}會員</h2>
     <p class="member-dialog-summary">#{{ target.id }} · {{ target.name }}<br />{{ target.email }}<br />狀態版本 v{{ target.statusVersion }}</p><p id="member-status-impact" class="muted">{{ target.status==='ACTIVE'?'停用會撤銷所有登入及重設連結，但保留訂單、購物車與收藏。':'恢復不會還原先前登入，會員必須重新登入。' }}</p>
     <div v-if="actionError" class="alert alert-error" role="alert">{{ actionError }}</div>
+<DemoFillButton :disabled="blocked" @fill="fillDemo" />
     <div class="field"><label for="member-status-reason">操作原因</label><textarea id="member-status-reason" v-model="reason" class="input" required maxlength="200" rows="3" :disabled="blocked"></textarea></div>
     <div class="row member-dialog-actions"><button type="button" data-cancel-action class="btn btn-ghost" :disabled="blocked" @click="cancelAction">取消</button><button class="btn" :class="target.status==='ACTIVE'?'btn-danger':'btn-primary'" :disabled="blocked">{{ saving?'處理中…':'確認變更' }}</button></div>
    </form>

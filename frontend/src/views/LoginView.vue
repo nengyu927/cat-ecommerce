@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+
 import FeedbackNotice from '@/components/FeedbackNotice.vue'
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -42,6 +44,7 @@ async function submit(demoKind = null) {
     loading.value = false
   }
 }
+function fillDemo() { if (loading.value) return; Object.assign(form, demoAccounts[isAdminLogin.value ? 'admin' : 'customer']); clear() }
 </script>
 
 <template>
@@ -54,6 +57,7 @@ async function submit(demoKind = null) {
         <div v-if="error" class="alert alert-error">{{ error }}</div>
 <FeedbackNotice :message="notice" />
         <form @submit.prevent="submit()">
+<DemoFillButton :disabled="loading" @fill="fillDemo" />
           <div class="field">
             <label for="login-email">電子郵件</label>
             <input id="login-email" v-model="form.email" type="email" class="input" placeholder="customer@catshop.local" required :aria-invalid="!!fields.email" :aria-describedby="fields.email ? 'login-email-error' : undefined" />
@@ -71,7 +75,7 @@ async function submit(demoKind = null) {
           <button type="button" class="btn btn-ghost btn-block" :disabled="loading" @click="submit(isAdminLogin ? 'admin' : 'customer')">
             {{ loading ? '登入中…' : isAdminLogin ? '一鍵登入管理員（展示用）' : '一鍵登入會員（展示用）' }}
           </button>
-          <p class="muted" style="font-size: 12px;">僅供展示，使用共用測試帳號。資料異動會被其他展示者看到，請勿輸入真實個資。</p>
+          <p class="muted" style="font-size: 12px;">僅供展示，使用共用展示帳號。資料異動會被其他展示者看到，請勿輸入真實個資。</p>
         </div>
         <p v-if="!isAdminLogin" class="muted mt-2" style="text-align: center; font-size: 13px;">
           還沒有帳號？<RouterLink to="/register" style="color: var(--brand); font-weight: 600;">立即註冊</RouterLink>

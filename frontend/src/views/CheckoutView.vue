@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { checkoutDraft } from '@/utils/demoFill'
 import { onMounted, onBeforeUnmount, reactive, ref, watch, computed } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { memberApi, orderApi } from '@/api'
@@ -286,6 +288,7 @@ async function sendAttempt(attempt, isNew = false) {
     if (sequence === submitSequence) submitting.value = false
   }
 }
+function fillDemo() { if (confirmation.pending.value || submitting.value || pendingAttempt.value || createdOrder.value || !loaded.value) return; Object.assign(form, checkoutDraft()); clear() }
 </script>
 
 <template>
@@ -339,6 +342,7 @@ async function sendAttempt(attempt, isNew = false) {
       <div v-if="loaded" class="grid checkout-grid">
         <div class="card" style="padding: 24px;">
           <fieldset class="checkout-fields" :disabled="confirmation.pending.value || submitting || !!pendingAttempt || !!createdOrder">
+<DemoFillButton :disabled="confirmation.pending.value || submitting || !!pendingAttempt || !!createdOrder" @fill="fillDemo" />
           <div v-if="addresses.length" class="mb-2">
             <label style="font-size: 13px; font-weight: 600; color: var(--ink-soft);">使用已儲存地址</label>
             <div class="row" style="flex-wrap: wrap; margin-top: 8px;">
@@ -383,6 +387,8 @@ async function sendAttempt(attempt, isNew = false) {
         <div class="card" style="padding: 20px;">
           <h3 style="margin: 0 0 14px;">訂單摘要</h3>
           <form aria-label="套用優惠券" @submit.prevent="applyCoupon">
+            <DemoFillButton :disabled="confirmation.pending.value || quoting || submitting || !!pendingAttempt || !!createdOrder" label="一鍵填入優惠碼" @fill="couponCode = 'MEOW100'" />
+            <p class="muted" style="font-size:12px">演示優惠碼 MEOW100，請先在後台建立並啟用；使用資格依實際優惠券規則判定。</p>
             <label for="coupon-code">優惠碼</label>
             <input id="coupon-code" v-model="couponCode" class="input" maxlength="32" placeholder="輸入優惠碼" :disabled="confirmation.pending.value || quoting || submitting || !!pendingAttempt || !!createdOrder" />
             <div class="row mt-2" style="flex-wrap:wrap"><button class="btn btn-ghost btn-sm" :disabled="quoting||submitting||checkoutBlocked||!couponCode.trim()">套用優惠券</button><button v-if="couponCode.trim() || couponDecision" type="button" class="btn btn-ghost btn-sm" :disabled="quoting||submitting||checkoutBlocked" @click="removeCoupon">移除優惠並確認原價</button></div>

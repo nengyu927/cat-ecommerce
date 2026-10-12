@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { registrationDraft } from '@/utils/demoFill'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -25,6 +27,7 @@ async function submit() {
     loading.value = false
   }
 }
+function fillDemo() { if (loading.value) return; Object.assign(form, registrationDraft()); clear() }
 </script>
 
 <template>
@@ -36,6 +39,7 @@ async function submit() {
       <div class="card" style="padding: 26px;">
         <div v-if="error" class="alert alert-error">{{ error }}</div>
         <form @submit.prevent="submit">
+<DemoFillButton :disabled="loading" @fill="fillDemo" />
           <div class="field">
             <label for="register-email">電子郵件 *</label>
             <input id="register-email" v-model="form.email" type="email" class="input" required :aria-invalid="!!fields.email" :aria-describedby="fields.email ? 'register-email-error' : undefined" />

@@ -1,4 +1,5 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
 import ListPagination from '@/components/ListPagination.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import {useConfirmation} from '@/composables/useConfirmation'
@@ -154,6 +155,21 @@ async function disable(row) {
 }
 function retryLoad(){if(!blocked.value&&!loading.value)restoreQuery()}
 
+function fillDemo() {
+ if (loading.value || blocked.value) return
+ const row = rows.value[0]
+ Object.assign(filters, { categoryId: '', brand: '', isActive: '', memberId: '', from: '', to: '' })
+ status.value = ''
+ if (section.value === 'products') {
+  keyword.value = row?.name || '雞肉'; filters.categoryId = row?.categoryId || ''; filters.brand = row?.brand || ''; filters.isActive = row ? String(row.isActive) : 'true'; status.value = row?.status || 'ON_SALE'
+ } else if (section.value === 'categories') {
+  keyword.value = row?.name || '主食'; filters.isActive = row ? String(row.isActive) : 'true'
+ } else {
+  keyword.value = row?.orderNo || ''; filters.memberId = row?.memberId ? String(row.memberId) : ''; status.value = row?.status || ''
+  const date = row?.createdAt ? new Date(row.createdAt) : new Date()
+  if (Number.isFinite(date.getTime())) { filters.from = new Date(date.getTime()-86400000).toISOString().slice(0,10); filters.to = new Date(date.getTime()+86400000).toISOString().slice(0,10) }
+ }
+}
 </script>
 
 <template>
@@ -169,6 +185,7 @@ function retryLoad(){if(!blocked.value&&!loading.value)restoreQuery()}
     <p v-if="error" class="alert alert-error" role="alert">{{ error }} <button class="btn btn-ghost btn-sm" :disabled="loading||blocked" @click="retryLoad">重試載入</button></p>
     <p v-if="message" class="alert alert-ok" role="status">{{ message }}</p>
     <form class="row mb-2 admin-filter-panel" style="flex-wrap: wrap; align-items: end;" aria-label="管理列表篩選" @submit.prevent="search">
+<DemoFillButton :disabled="loading || blocked" @fill="fillDemo" label="一鍵填入搜尋條件" />
       <fieldset class="admin-filter-fields" :disabled="blocked">
       <label>{{ section === 'orders' ? '訂單編號' : '名稱搜尋' }}<input v-model="keyword" class="input" style="max-width: 260px" :placeholder="section === 'orders' ? '訂單編號' : '名稱搜尋'" /></label>
       <label v-if="section !== 'categories'">狀態<select v-model="status" aria-label="狀態" class="select" style="max-width: 180px" @change="search">

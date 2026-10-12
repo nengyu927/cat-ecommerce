@@ -25,13 +25,13 @@ function jump(){
   <div class="paging-row">
    <label>{{ labelPrefix }}每頁筆數<select class="select" :aria-label="labelPrefix+'每頁筆數'" :value="size" :disabled="loading" @change="changeSize"><option v-for="value in sizes" :key="value" :value="value">{{ value }} 筆</option></select></label>
    <div class="paging-buttons"><button class="btn btn-ghost btn-sm" :disabled="loading||page<=0||totalPages===0" @click="navigate({[pageKey]:page-1})">{{ labelPrefix }}上一頁</button><span class="muted" aria-live="polite">{{ totalPages>0?`第 ${page+1} / ${totalPages} 頁`:'沒有分頁資料' }}</span><button class="btn btn-ghost btn-sm" :disabled="loading||page+1>=totalPages" @click="navigate({[pageKey]:page+1})">{{ labelPrefix }}下一頁</button></div>
-   <form class="paging-jump" novalidate @submit.prevent="jump"><label>{{ labelPrefix }}前往頁碼<input v-model="draft" class="input" :aria-label="labelPrefix+'前往頁碼'" inputmode="numeric" maxlength="10" :disabled="loading||totalPages===0" /></label><button class="btn btn-ghost btn-sm" :disabled="loading||totalPages===0">{{ labelPrefix }}前往</button></form>
+   <div class="paging-draft"><button type="button" class="btn btn-ghost btn-sm" :disabled="loading||totalPages===0" @click="draft=String(Math.min(page+2,totalPages));error=''">一鍵填入頁碼</button><form class="paging-jump" novalidate @submit.prevent="jump"><label>{{ labelPrefix }}前往頁碼<input v-model="draft" class="input" :aria-label="labelPrefix+'前往頁碼'" inputmode="numeric" maxlength="10" :disabled="loading||totalPages===0" /></label><button class="btn btn-ghost btn-sm" :disabled="loading||totalPages===0">{{ labelPrefix }}前往</button></form></div>
   </div>
   <p v-if="error" class="field-error" role="alert">{{ error }}</p>
  </section>
 </template>
 <style scoped>
 .list-pagination{margin-top:24px;padding:14px;border:1px solid var(--border,#e3e8df);border-radius:14px;background:var(--surface,#fff)}
-.paging-row,.paging-buttons,.paging-jump{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.paging-row{justify-content:space-between}.paging-row label{display:flex;align-items:center;gap:8px;font-size:13px}.select{width:88px}.paging-jump .input{width:72px}.paging-buttons{justify-content:center;font-size:13px}.field-error{margin:10px 0 0}.paging-jump{margin:0}
+.paging-row,.paging-buttons,.paging-jump,.paging-draft{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.paging-draft{justify-content:center}.paging-row{justify-content:space-between}.paging-row label{display:flex;align-items:center;gap:8px;font-size:13px}.select{width:88px}.paging-jump .input{width:72px}.paging-buttons{justify-content:center;font-size:13px}.field-error{margin:10px 0 0}.paging-jump{margin:0}
 @media(max-width:600px){.paging-row{justify-content:center}.paging-buttons{width:100%;order:2}.paging-jump{justify-content:center}.paging-buttons .btn{padding:8px 10px}.list-pagination{padding:12px}}
 </style>

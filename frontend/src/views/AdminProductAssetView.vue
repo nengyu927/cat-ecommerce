@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { skuDraft } from '@/utils/demoFill'
 import {adminReturnQuery} from '@/utils/adminListQuery'
 import ProductImage from '@/components/ProductImage.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
@@ -81,6 +83,18 @@ async function uploadImage(event){
  catch(e){if(current===sequence)error.value=e.message}
  finally{if(current===sequence)saving.value=false;event.target.value=''}
 }
+function fillImages() {
+ if (blocked.value || !ready.value) return
+ form.imageUrl = detail.value.images?.[0]?.url || '/product-images/orijen-cat-dry.png'
+ form.images.forEach(image => { image.altText = detail.value.name + ' 商品外觀' })
+ error.value = ''; message.value = ''
+}
+function fillSku(item = sku) {
+ if (blocked.value || !ready.value) return
+ const draft = skuDraft(detail.value.basePrice)
+ if (item.id) { delete draft.skuCode; draft.specName = item.specName || draft.specName }
+ Object.assign(item, draft); error.value = ''; message.value = ''
+}
 </script>
 <template>
  <div class="page"><div class="container">
@@ -93,6 +107,7 @@ async function uploadImage(event){
   <p v-if="ready">{{ detail.name }} · #{{ detail.id }}</p>
   <form v-if="ready&&isImages" class="card image-panel" aria-label="商品圖片管理" @submit.prevent="saveImages">
    <fieldset :disabled="blocked">
+<DemoFillButton :disabled="blocked" @fill="fillImages" />
     <p class="muted">只儲存圖片關聯，不更改名稱、分類、價格或 SKU。上傳取得網址後，仍需儲存清單。</p>
     <div class="field"><label>圖片網址<input v-model="form.imageUrl" class="input" maxlength="500" /></label></div>
     <label>上傳 PNG / JPEG（最多 5 MB）<input type="file" accept="image/png,image/jpeg" @change="uploadImage" /></label>
@@ -111,8 +126,8 @@ async function uploadImage(event){
   </form>
     <section v-if="ready && !isImages" class="card mt-3" style="padding: 24px; overflow-x: auto">
       <fieldset :disabled="blocked"><h2>SKU 價格與庫存</h2>
-      <table class="table"><thead><tr><th>編號</th><th>規格</th><th>價格</th><th>庫存</th><th>安全庫存</th><th>啟用</th><th></th></tr></thead><tbody><tr v-for="item in detail.skus" :key="item.id"><td>{{ item.skuCode }}</td><td><input v-model="item.specName" :aria-label="item.skuCode+' 規格名稱'" maxlength="200" class="input" /></td><td><input v-model.number="item.price" :aria-label="item.skuCode+' 價格'" class="input" type="number" min="0" step="0.01" /></td><td><input v-model.number="item.stock" :aria-label="item.skuCode+' 庫存'" class="input" type="number" min="0" /></td><td><input v-model.number="item.safetyStock" :aria-label="item.skuCode+' 安全庫存'" class="input" type="number" min="0" /></td><td><input v-model="item.isActive" :aria-label="item.skuCode+' 啟用'" type="checkbox" /></td><td><button class="btn btn-primary btn-sm" :disabled="saving" @click="saveSku(item)">儲存</button></td></tr></tbody></table>
-      <form class="row mt-2" style="flex-wrap: wrap" @submit.prevent="saveSku(sku)"><input v-model="sku.skuCode" class="input" placeholder="新 SKU 編號" aria-label="新 SKU 編號" maxlength="64" required /><input v-model="sku.specName" class="input" placeholder="規格" aria-label="新 SKU 規格" maxlength="200" required /><label>價格<input v-model.number="sku.price" class="input" type="number" min="0" step="0.01" required /></label><label>庫存<input v-model.number="sku.stock" class="input" type="number" min="0" step="1" required /></label><label>安全庫存<input v-model.number="sku.safetyStock" class="input" type="number" min="0" step="1" required /></label><button class="btn btn-primary" :disabled="saving">新增規格</button></form>
+      <table class="table"><thead><tr><th>編號</th><th>規格</th><th>價格</th><th>庫存</th><th>安全庫存</th><th>啟用</th><th></th></tr></thead><tbody><tr v-for="item in detail.skus" :key="item.id"><td>{{ item.skuCode }}</td><td><input v-model="item.specName" :aria-label="item.skuCode+' 規格名稱'" maxlength="200" class="input" /></td><td><input v-model.number="item.price" :aria-label="item.skuCode+' 價格'" class="input" type="number" min="0" step="0.01" /></td><td><input v-model.number="item.stock" :aria-label="item.skuCode+' 庫存'" class="input" type="number" min="0" /></td><td><input v-model.number="item.safetyStock" :aria-label="item.skuCode+' 安全庫存'" class="input" type="number" min="0" /></td><td><input v-model="item.isActive" :aria-label="item.skuCode+' 啟用'" type="checkbox" /></td><td><DemoFillButton :disabled="blocked" @fill="fillSku(item)" /><button class="btn btn-primary btn-sm" :disabled="saving" @click="saveSku(item)">儲存</button></td></tr></tbody></table>
+      <form class="row mt-2" style="flex-wrap: wrap" @submit.prevent="saveSku(sku)"><DemoFillButton :disabled="blocked" @fill="fillSku()" /><input v-model="sku.skuCode" class="input" placeholder="新 SKU 編號" aria-label="新 SKU 編號" maxlength="64" required /><input v-model="sku.specName" class="input" placeholder="規格" aria-label="新 SKU 規格" maxlength="200" required /><label>價格<input v-model.number="sku.price" class="input" type="number" min="0" step="0.01" required /></label><label>庫存<input v-model.number="sku.stock" class="input" type="number" min="0" step="1" required /></label><label>安全庫存<input v-model.number="sku.safetyStock" class="input" type="number" min="0" step="1" required /></label><button class="btn btn-primary" :disabled="saving">新增規格</button></form>
       </fieldset>
     </section>
  </div></div>

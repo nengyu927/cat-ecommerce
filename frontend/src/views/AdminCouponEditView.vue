@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { couponDraft } from '@/utils/demoFill'
 import {adminReturnQuery} from '@/utils/adminListQuery'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -57,6 +59,7 @@ async function save(){
  }catch(e){if(current===sequence)error.value=e.message}
  finally{if(current===sequence)saving.value=false}
 }
+function fillDemo(code) { if (blocked.value || !ready.value) return; const draft = couponDraft(); if (!isNew.value) draft.code = form.code; else if (typeof code === 'string') draft.code = code; Object.assign(form, draft); error.value = ''; message.value = '' }
 </script>
 <template>
  <div class="page"><div class="container">
@@ -68,6 +71,9 @@ async function save(){
   <p v-if="message" class="alert alert-ok" role="status">{{ message }}</p>
   <button v-if="ready&&!error" type="button" class="btn btn-ghost mb-2" :disabled="blocked||loading" @click="retry">重新載入</button>
   <form v-if="ready" class="card coupon-form mt-3" aria-label="優惠券編輯" @submit.prevent="save">
+<DemoFillButton :disabled="blocked" @fill="fillDemo" />
+   <DemoFillButton v-if="isNew" :disabled="blocked" label="一鍵填入前台演示優惠券（MEOW100）" @fill="fillDemo('MEOW100')" />
+   <p v-if="isNew" class="muted">MEOW100 可搭配前台一鍵填入優惠碼；若已建立，請從列表編輯原券。</p>
    <label>優惠碼<input v-model="form.code" class="input" pattern="[A-Za-z0-9_-]{3,32}" maxlength="32" required :disabled="blocked || !isNew" /></label>
    <label>折抵金額<input v-model.number="form.discountAmount" class="input" type="number" min="0.01" max="999999.99" step="0.01" required :disabled="blocked" /></label>
    <label>最低商品金額<input v-model.number="form.minimumAmount" class="input" type="number" min="0" max="999999.99" step="0.01" required :disabled="blocked" /></label>

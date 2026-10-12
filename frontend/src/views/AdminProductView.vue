@@ -1,4 +1,6 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { productDraft, skuDraft } from '@/utils/demoFill'
 import {adminReturnQuery} from '@/utils/adminListQuery'
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -72,6 +74,14 @@ async function uploadImage(event){
  catch(e){if(current===sequence)error.value=e.message}
  finally{if(current===sequence)saving.value=false;event.target.value=''}
 }
+function fillDemo() {
+ if (blocked.value || !ready.value) return
+ const category = categories.value.find(c => c.isActive && /乾糧|主食|飼料/.test(c.name)) || categories.value.find(c => c.isActive)
+ Object.assign(form, productDraft(category?.id ?? form.categoryId))
+ if (!isNew.value) form.slug = detail.value.slug
+ if (isNew.value) { Object.assign(sku, skuDraft(form.basePrice)); form.imageUrl = '/product-images/orijen-cat-dry.png'; form.images = [] }
+ error.value = ''; message.value = ''
+}
 </script>
 <template>
  <div class="page"><div class="container">
@@ -87,6 +97,7 @@ async function uploadImage(event){
     </nav>
     <button v-if="ready&&!error" type="button" class="btn btn-ghost mb-2" :disabled="blocked||loading" @click="retry">重新載入</button>
   <form v-if="ready" class="card mt-3" style="padding: 24px" @submit.prevent="save">
+<DemoFillButton :disabled="blocked" @fill="fillDemo" />
       <fieldset :disabled="blocked"><h2>{{ isNew ? '新增商品' : '編輯商品' }}</h2>
       <div class="field"><label>名稱<input v-model="form.name" class="input" required maxlength="200" /></label></div>
       <div class="field"><label>網址代稱（小寫英數字與連字號）<input v-model="form.slug" class="input" required pattern="[a-z0-9-]+" /></label></div>

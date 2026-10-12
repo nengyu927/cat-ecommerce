@@ -1,4 +1,8 @@
 <script setup>
+import DemoFillButton from '@/components/DemoFillButton.vue'
+import { demoPassword } from '@/utils/demoFill'
+import { demoAccounts } from '@/config/demo'
+import { isAdminApp } from '@/config/surface'
 import FeedbackNotice from '@/components/FeedbackNotice.vue'
 import { ref, computed, onBeforeUnmount, watch } from 'vue'
 import { useRoute,useRouter } from 'vue-router'
@@ -43,6 +47,7 @@ async function submit(){
  }catch(e){if(current===version)error.value=e.message}
  finally{if(current===version)loading.value=false}
 }
+function fillDemo() { if (loading.value) return; if (resetting.value) { password.value = demoPassword; confirm.value = demoPassword } else email.value = demoAccounts[isAdminApp ? 'admin' : 'customer'].email; error.value = '' }
 </script>
 <template>
  <div class="page"><div class="container" style="max-width:460px">
@@ -52,6 +57,7 @@ async function submit(){
    <div v-if="error" class="alert alert-error" role="alert">{{ error }}</div>
 <FeedbackNotice :message="message" />
    <form v-if="!resetting || !message" @submit.prevent="submit">
+<DemoFillButton :disabled="loading" @fill="fillDemo" />
     <div v-if="!resetting" class="field"><label for="reset-email">電子郵件</label><input id="reset-email" v-model="email" type="email" class="input" required maxlength="200" autocomplete="email" :disabled="loading" /></div>
     <template v-else>
      <div v-if="!token" class="alert">此頁沒有有效重設連結；重新整理後請再次開啟信件中的完整連結。</div>
